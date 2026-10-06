@@ -48,7 +48,7 @@ async function enviarRespostas(){
   envioConcluido = true;
   const payload = { submissionId: gerarSubmissionId(), platform: PLUS_ONE_CONFIG.PLATFORM, respostas: respostas };
   try {
-    await fetch(PLUS_ONE_CONFIG.APPS_SCRIPT_URL, { method:'POST', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
+    await fetch(PLUS_ONE_CONFIG.APPS_SCRIPT_URL, { method:'POST', mode: 'no-cors', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
     console.log('Plus One: respostas enviadas.');
   } catch(error) { envioConcluido=false; console.error('Plus One: não foi possível enviar as respostas.', error); }
 }
