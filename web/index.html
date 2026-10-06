@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#B4CAD6">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A1115">
+  <title>Plus One — English Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <aside class="rail">
+      <div class="brand"><picture class="brand-mark"><source media="(prefers-color-scheme: dark)" srcset="logo-mark-dark.svg"><img src="logo-mark-light.svg" alt="Plus One"></picture><span>PLUS ONE</span></div>
+
+      <nav class="main-nav" aria-label="Navegação">
+        <button id="homeTab" class="nav-item active" type="button"><span class="nav-icon">⌂</span><span>Introdução</span></button>
+        <button id="diagnosticTab" class="nav-item" type="button"><span class="nav-icon">◫</span><span>English Profile</span></button>
+      </nav>
+
+      <nav class="utility-nav" aria-label="Mais informações">
+        <button class="utility-item" type="button" data-toast="Instagram da Plus One em breve.">
+          <span class="utility-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg></span>
+          <span class="utility-copy"><strong>Conheça nosso Instagram</strong><small>Novidades e conteúdos</small></span>
+        </button>
+        <button class="utility-item" type="button" data-toast="A apresentação da equipe entra aqui na próxima etapa.">
+          <span class="utility-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3.5 19c.7-3 2.4-4.5 5.5-4.5S13.8 16 14.5 19"/><path d="M14.5 17c.5-2 1.6-3 3.5-3 1.5 0 2.5.7 3 2"/></svg></span>
+          <span class="utility-copy"><strong>Nossa equipe</strong><small>Quem está por trás do Plus One</small></span>
+        </button>
+        <button class="utility-item" type="button" data-toast="As dúvidas frequentes entram aqui na próxima etapa.">
+          <span class="utility-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 1 1 4.2 1.8c-1.1.9-1.9 1.3-1.9 2.7"/><path d="M12 17.2h.01"/></svg></span>
+          <span class="utility-copy"><strong>Dúvidas frequentes</strong><small>Entenda o processo</small></span>
+        </button>
+      </nav>
+
+      <div id="diagnosticRail" class="diagnostic-rail hidden">
+        <button id="backBtn" class="back-btn" type="button">← <span>Voltar</span></button>
+        <div class="rail-title">PERGUNTAS</div>
+        <div id="questionMap" class="question-map"></div>
+      </div>
+
+      <div class="rail-bottom">
+        <span id="railLabel">ENGLISH PROFILE</span>
+        <strong id="railProgress">até 24 perguntas</strong>
+      </div>
+    </aside>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p id="sectionLabel">INTRODUÇÃO</p>
+          <h1 id="topTitle">Seu English Profile</h1>
+        </div>
+        <div id="progressWrap" class="progress-wrap hidden">
+          <span id="progressText">01 / 25</span>
+          <div class="progress"><i id="progressBar"></i></div>
+        </div>
+      </header>
+
+      <!-- Tela de introdução: pode ser acessada a qualquer momento sem apagar respostas. -->
+      <section id="home" class="intro-screen">
+        <div class="intro-content">
+          <div class="intro-kicker">ENGLISH PROFILE</div>
+          <h2>Seu <span class="accent-word">inglês</span>.<br><em>Seu próximo passo.</em></h2>
+          <p>Antes de começar, vamos te explicar rapidinho como funciona. Não é uma prova e não existe resposta certa ou errada. A ideia é entender você.</p>
+          <button class="primary" id="homeStartBtn" type="button"><span id="homeStartLabel">Começar meu perfil</span> <b>→</b></button>
+          <small>Leva poucos minutos · até 24 perguntas</small>
+        </div>
+        <div class="intro-notes">
+          <div class="note"><span>01</span><div><strong>Você responde</strong><p>Conte sobre sua experiência, rotina e objetivos com o inglês.</p></div></div>
+          <div class="note"><span>02</span><div><strong>Sem pressão</strong><p>Não é uma prova. Responda pensando no que realmente acontece hoje.</p></div></div>
+          <div class="note"><span>03</span><div><strong>A gente entende seu momento</strong><p>Suas respostas ajudam a construir um perfil de estudos mais adequado para você.</p></div></div>
+        </div>
+      </section>
+
+      <!-- Questionário em formato de conversa, não de formulário. -->
+      <section id="questionCard" class="chat-card hidden">
+        <div id="chatHistory" class="chat-history" aria-live="polite"></div>
+        <div id="answerArea" class="chat-answer-area"></div>
+        <div class="chat-footer">
+          <button id="bottomBack" class="ghost-btn" type="button">← Voltar</button>
+          <span id="saveHint">Sua resposta fica salva enquanto você avança.</span>
+        </div>
+      </section>
+
+      <section id="finish" class="finish hidden">
+        <div class="finish-mark">✓</div>
+        <p class="eyebrow">ENGLISH PROFILE</p>
+        <h2>Diagnóstico concluído.</h2>
+        <p>Obrigado por compartilhar um pouco sobre você. Em até 48 horas, você receberá seu plano de estudo personalizado pelo e-mail e pelo WhatsApp informados.</p>
+        <button id="restartBtn" class="primary" type="button">Voltar para Introdução</button>
+      </section>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

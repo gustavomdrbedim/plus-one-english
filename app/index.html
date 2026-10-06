@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#B4CAD6">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A1115">
+  <meta name="theme-color" content="#B4CAD6">
+  <title>Plus One — English Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand"><picture class="brand-mark"><source media="(prefers-color-scheme: dark)" srcset="logo-mark-dark.svg"><img src="logo-mark-light.svg" alt="Plus One"></picture><span>PLUS ONE</span></div>
+      <div class="top-meta"><span id="sectionLabel">PROFILE</span><strong id="progress">01 / 25</strong></div>
+    </header>
+
+    <section class="intro" id="intro">
+      <div class="intro-kicker">ENGLISH PROFILE</div>
+      <h1>Seu <span class="accent-word">inglês</span>.<br><em>Seu próximo passo.</em></h1>
+      <p>Vamos entender onde você está, o que você busca e como uma rotina de estudos pode fazer sentido para a sua vida.</p>
+      <button class="primary" id="startBtn">Começar <span>→</span></button>
+      <small>Leva poucos minutos · até 24 perguntas</small>
+    </section>
+
+    <section class="chat" id="chat" aria-live="polite"></section>
+    <section class="answer-area" id="answerArea"></section>
+
+    <section class="finish hidden" id="finish">
+      <div class="finish-mark">✓</div>
+      <div class="intro-kicker">PROFILE COMPLETE</div>
+      <h2>Pronto. Agora a gente conhece você um pouco melhor.</h2>
+      <p>Obrigado por compartilhar um pouco sobre você. Em até 48 horas, você receberá seu plano de estudo personalizado pelo e-mail e pelo WhatsApp informados.</p>
+      <button class="primary" id="restartBtn">Refazer diagnóstico <span>↻</span></button>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
