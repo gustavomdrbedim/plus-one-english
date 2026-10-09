@@ -33,24 +33,38 @@ const PLUS_ONE_CONFIG = {
   PLATFORM: 'app'
 };
 const APP_STORAGE_KEY = 'plusOneEnglishProfileAppV1';
-let envioConcluido = false;
-let respostas = {};
-const appSaved = localStorage.getItem(APP_STORAGE_KEY);
-if(appSaved){ try { respostas = JSON.parse(appSaved) || {}; } catch(e) { respostas = {}; } }
-function persist(){ localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(respostas)); }
-function gerarSubmissionId(){
-  let id = localStorage.getItem('plusOneSubmissionId');
-  if(!id){ id = 'P-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,8).toUpperCase(); localStorage.setItem('plusOneSubmissionId', id); }
-  return id;
-}
-async function enviarRespostas(){
-  if(envioConcluido || !PLUS_ONE_CONFIG.APPS_SCRIPT_URL || PLUS_ONE_CONFIG.APPS_SCRIPT_URL.includes('COLE_AQUI')) return;
-  envioConcluido = true;
-  const payload = { submissionId: gerarSubmissionId(), platform: PLUS_ONE_CONFIG.PLATFORM, respostas: respostas };
-  try {
-    await fetch(PLUS_ONE_CONFIG.APPS_SCRIPT_URL, { method:'POST', mode: 'no-cors', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
-    console.log('Plus One: respostas enviadas.');
-  } catch(error) { envioConcluido=false; console.error('Plus One: não foi possível enviar as respostas.', error); }
+let envioConcluido=false;
+let respostas={};
+const appSaved=localStorage.getItem(APP_STORAGE_KEY);if(appSaved){try{respostas=JSON.parse(appSaved)||{};}catch(e){respostas={};}}
+function persist(){localStorage.setItem(APP_STORAGE_KEY,JSON.stringify(respostas));}
+
+// V14: identificadores persistentes, confirmação real por consulta JSONP e janela de 12 horas.
+const PO_CLIENT_KEY='plusOneClientIdV14', PO_RECEIPT_KEY='plusOneReceiptV14', PO_PENDING_KEY='plusOnePendingV14';
+function poId(prefix){return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,11).toUpperCase();}
+function poClientId(){let id=localStorage.getItem(PO_CLIENT_KEY);if(!id){id=poId('C');localStorage.setItem(PO_CLIENT_KEY,id);}return id;}
+function poReceipt(){try{return JSON.parse(localStorage.getItem(PO_RECEIPT_KEY)||'null');}catch(e){return null;}}
+function poCanRedo(){const r=poReceipt();return !!(r&&Date.now()<new Date(r.firstSubmittedAt).getTime()+12*3600000);}
+function poResetAnswers(storageKey){localStorage.removeItem(storageKey);localStorage.removeItem(PO_PENDING_KEY);localStorage.removeItem('plusOneSubmissionId');envioConcluido=false;respostas={};}
+function poCheckStatus(submissionId){return new Promise((resolve,reject)=>{const callback='poCallback_'+Math.random().toString(36).slice(2);const script=document.createElement('script');const timeout=setTimeout(()=>cleanup(new Error('Tempo esgotado ao verificar o recebimento.')),12000);function cleanup(err,data){clearTimeout(timeout);delete window[callback];script.remove();if(err)reject(err);else resolve(data);}window[callback]=data=>cleanup(null,data);script.onerror=()=>cleanup(new Error('Não foi possível verificar o recebimento.'));script.src=PLUS_ONE_CONFIG.APPS_SCRIPT_URL+'?action=status&submissionId='+encodeURIComponent(submissionId)+'&callback='+callback;document.head.appendChild(script);});}
+async function poSendAndConfirm(){
+  const pending=JSON.parse(localStorage.getItem(PO_PENDING_KEY)||'null');
+  const submissionId=pending?.submissionId||poId('P');
+  const payload=pending?.payload||{submissionId,clientId:poClientId(),platform:PLUS_ONE_CONFIG.PLATFORM,respostas:{...respostas}};
+  localStorage.setItem(PO_PENDING_KEY,JSON.stringify({submissionId,payload}));
+  // Primeiro consulta se uma tentativa anterior já foi recebida; repetir o POST é idempotente.
+  let result=await poCheckStatus(submissionId).catch(()=>null);
+  if(!result?.ok){
+    await fetch(PLUS_ONE_CONFIG.APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    for(let attempt=0;attempt<5;attempt++){
+      await new Promise(r=>setTimeout(r,800+attempt*600));
+      result=await poCheckStatus(submissionId).catch(()=>null);
+      if(result?.ok||result?.error)break;
+    }
+  }
+  if(!result?.ok)throw new Error(result?.error||'Ainda não conseguimos confirmar o recebimento. Tente novamente.');
+  const receipt={studentId:result.studentId,firstSubmittedAt:result.firstSubmittedAt,submittedAt:result.submittedAt,version:result.version};
+  localStorage.setItem(PO_RECEIPT_KEY,JSON.stringify(receipt));localStorage.removeItem(PO_PENDING_KEY);
+  return receipt;
 }
 
 const intro=document.getElementById('intro'),chat=document.getElementById('chat'),area=document.getElementById('answerArea'),finish=document.getElementById('finish'),progress=document.getElementById('progress'),sectionLabel=document.getElementById('sectionLabel');
@@ -68,15 +82,14 @@ function totalVisivel(){ return perguntas.filter(deveMostrar).length; }
 function posicaoAtual(){ return perguntas.slice(0,atual+1).filter(deveMostrar).length; }
 function atualizar(){ const total=totalVisivel(); progress.textContent=atual<perguntas.length?`${String(posicaoAtual()).padStart(2,'0')} / ${total}`:'DONE'; sectionLabel.textContent=atual<perguntas.length?secoes[perguntas[atual].id]:'FINISHED'; }
 function msg(text,tipo){const w=document.createElement('div');w.className=`message-wrap ${tipo}`;if(tipo==='bot'){const m=document.createElement('div');m.className='bot-mark';m.textContent='+1';w.appendChild(m)}const b=document.createElement('div');b.className='message';b.textContent=text;w.appendChild(b);chat.appendChild(w);setTimeout(()=>chat.scrollTo({top:chat.scrollHeight,behavior:'smooth'}),30)}
-function finalizar(){
-  area.innerHTML='';
-  chat.classList.add('hidden');
-  finish.classList.remove('hidden');
-  progress.textContent='DONE';
-  sectionLabel.textContent='FINISHED';
-  persist();
-  enviarRespostas();
+async function finalizar(){
+  area.innerHTML='';area.style.display='none';chat.classList.add('hidden');finish.classList.remove('hidden');atual=perguntas.length;atualizar();persist();
+  const heading=finish.querySelector('h2'),desc=finish.querySelector('.po-finish-desc'),retry=document.getElementById('retryBtn'),restart=document.getElementById('restartBtn');
+  heading.textContent='Enviando seu perfil...';desc.textContent='Aguarde enquanto confirmamos o recebimento.';retry.hidden=true;restart.hidden=true;
+  try{await poSendAndConfirm();heading.textContent='Seu perfil chegou até nós!';desc.textContent='Obrigado por confiar na Plus One. Nossa equipe vai analisar suas respostas e, em breve, entrar em contato para compartilhar seu material e plano de estudos.';restart.hidden=!poCanRedo();}
+  catch(err){heading.textContent='Ainda não confirmamos seu envio';desc.textContent=err.message+' Suas respostas continuam salvas neste dispositivo.';retry.hidden=false;}
 }
+
 function responder(text){msg(text,'user'); const n=proxima(); if(n>=perguntas.length){setTimeout(finalizar,350);return;} atual=n; setTimeout(mostrar,280);}
 function outroCampo(p, selecionadas, continuar){ const wrap=document.createElement('div');wrap.className='other-wrap'; const input=document.createElement('input');input.className='text-input';input.placeholder='Conte um pouco mais...'; wrap.appendChild(input); area.appendChild(wrap); return input; }
 function mostrar(){
@@ -85,8 +98,8 @@ function mostrar(){
     const tag=p.tipo==='aberta'?'textarea':'input'; const input=document.createElement(tag); input.className=p.tipo==='aberta'?'text-input':'number-input';
     if(p.tipo==='numero'){input.type='number';input.min='1';input.max='120';} else if(p.tipo==='email') input.type='email'; else if(p.tipo==='tel') input.type='tel';
     input.placeholder=p.placeholder||'Escreva sua resposta...'; if(tag==='textarea') input.rows=4;
-    const btn=document.createElement('button');btn.className='continue';btn.textContent='Continuar →';
-    btn.onclick=()=>{const v=input.value.trim();if(!v)return;respostas[p.id]=v;persist();responder(v)}; area.append(input,btn); input.focus(); return;
+    const btn=document.createElement('button');btn.className='continue po-send';btn.textContent='➤';btn.setAttribute('aria-label','Enviar resposta');
+    btn.onclick=()=>{const v=input.value.trim();if(!v)return;respostas[p.id]=v;persist();responder(v)}; area.append(btn,input); input.focus(); return;
   }
   const selecionadas=Array.isArray(respostas[p.id])?[...respostas[p.id]]:[]; let outroInput=null; let continuar=null;
   if(p.tipo==='multipla'){const t=document.createElement('div');t.className='answer-title';t.textContent='Você pode escolher mais de uma opção';area.appendChild(t)}
@@ -100,8 +113,11 @@ function mostrar(){
     if(p.outro && op==='Outro'){ if(selecionadas.includes('Outro')) outroInput=outroInput||outroCampo(p,selecionadas,continuar); else if(outroInput){outroInput.parentElement.remove();outroInput=null;} }
     continuar.disabled=!selecionadas.length || (p.outro&&selecionadas.includes('Outro')&&!outroInput.value.trim());
   }; area.appendChild(b)});
-  if(p.tipo==='multipla'){continuar=document.createElement('button');continuar.className='continue';continuar.textContent='Continuar →';continuar.disabled=!selecionadas.length;continuar.onclick=()=>{if(p.outro&&selecionadas.includes('Outro')&&(!outroInput||!outroInput.value.trim()))return;let valor=[...selecionadas];if(outroInput&&outroInput.value.trim())valor=valor.map(v=>v==='Outro'?`Outro: ${outroInput.value.trim()}`:v);respostas[p.id]=valor;persist();responder(valor.join(' • '))};area.appendChild(continuar);if(outroInput)outroInput.addEventListener('input',()=>continuar.disabled=!selecionadas.length||(p.outro&&selecionadas.includes('Outro')&&!outroInput.value.trim()));}
+  if(p.tipo==='multipla'){continuar=document.createElement('button');continuar.className='continue po-send';continuar.textContent='➤';continuar.setAttribute('aria-label','Enviar respostas selecionadas');continuar.disabled=!selecionadas.length;continuar.onclick=()=>{if(p.outro&&selecionadas.includes('Outro')&&(!outroInput||!outroInput.value.trim()))return;let valor=[...selecionadas];if(outroInput&&outroInput.value.trim())valor=valor.map(v=>v==='Outro'?`Outro: ${outroInput.value.trim()}`:v);respostas[p.id]=valor;persist();responder(valor.join(' • '))};area.insertBefore(continuar,area.firstChild);if(outroInput)outroInput.addEventListener('input',()=>continuar.disabled=!selecionadas.length||(p.outro&&selecionadas.includes('Outro')&&!outroInput.value.trim()));}
 }
 
 document.getElementById('startBtn').onclick=()=>{intro.classList.add('hidden');chat.style.display='block';area.style.display='block';msg('Olá, futuro aluno da Plus One! 👋','bot');setTimeout(()=>msg('Ficamos muito felizes que você decidiu dar esse próximo passo no inglês. Quero conhecer um pouco mais sobre você para preparar algo que realmente combine com a sua rotina.','bot'),280);setTimeout(mostrar,650)};
-document.getElementById('restartBtn').onclick=()=>location.reload();
+document.getElementById('restartBtn').onclick=()=>{if(!poCanRedo())return;poResetAnswers(APP_STORAGE_KEY);location.reload();};
+document.getElementById('retryBtn').onclick=finalizar;
+if(poReceipt()){intro.classList.add('hidden');finish.classList.remove('hidden');finish.querySelector('h2').textContent='Seu perfil chegou até nós!';finish.querySelector('.po-finish-desc').textContent='Obrigado por confiar na Plus One. Em breve, nossa equipe entrará em contato para compartilhar seu material e plano de estudos.';document.getElementById('restartBtn').hidden=!poCanRedo();document.getElementById('retryBtn').hidden=true;}
+
