@@ -6,7 +6,7 @@
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#B4CAD6">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A1115">
   <meta name="theme-color" content="#B4CAD6">
-  <title>Plus One — English Profile</title>
+  <title>Plus One - Welcome student!</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -16,17 +16,26 @@
   <main class="app">
     <header class="topbar">
       <div class="brand"><picture class="brand-mark"><source media="(prefers-color-scheme: dark)" srcset="logo-mark-dark.svg"><img src="logo-mark-light.svg" alt="Plus One"></picture><span>PLUS ONE</span></div>
-      <div class="top-meta"><span id="sectionLabel">PROFILE</span><strong id="progress">01 / 25</strong></div>
+      <div class="top-meta"><span id="sectionLabel">PROFILE</span><button id="progress" class="progress-button" type="button" aria-label="Ver perguntas respondidas" aria-haspopup="dialog" aria-controls="questionDrawer" disabled>01 / 24</button></div>
     </header>
 
     <section class="intro" id="intro">
       <div class="intro-kicker">ENGLISH PROFILE</div>
-      <h1>Seu <span class="accent-word">inglês</span>.<br><em>Seu próximo passo.</em></h1>
-      <p>Vamos entender onde você está, o que você busca e como uma rotina de estudos pode fazer sentido para a sua vida.</p>
+      <h1>Seja bem-vindo à <span class="accent-word">análise de perfil</span> da Plus One.</h1>
+      <p>Vamos entender onde você está, o que você busca e como uma rotina de estudos personalizada pode ajudar você a evoluir no inglês.</p>
       <button class="primary" id="startBtn">Começar <span>→</span></button>
       <small>Leva poucos minutos · até 24 perguntas</small>
+      <div class="intro-links"><a class="intro-link" href="https://www.instagram.com/plus.one_school/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r=".9" fill="currentColor" stroke="none"/></svg><span>Instagram</span></a><a class="intro-link" href="faq.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 1 1 4.4 2c-1.1.8-1.9 1.3-1.9 2.8"/><path d="M12 17.3h.01"/></svg><span>Dúvidas frequentes</span></a></div>
     </section>
 
+    <div class="question-overlay hidden" id="questionDrawer" role="dialog" aria-modal="true" aria-label="Perguntas respondidas">
+      <button class="question-backdrop" id="drawerBackdrop" aria-label="Fechar navegação"></button>
+      <section class="question-panel">
+        <div class="question-panel-head"><div><span class="intro-kicker">SEU PROGRESSO</span><h2>Suas respostas</h2></div><button class="drawer-close" id="drawerClose" aria-label="Fechar">✕</button></div>
+        <p>Toque em uma pergunta respondida para revisar ou alterar sua resposta.</p>
+        <div id="answeredQuestions" class="answered-questions"></div>
+      </section>
+    </div>
     <section class="chat" id="chat" aria-live="polite"></section>
     <section class="answer-area" id="answerArea"></section>
 
