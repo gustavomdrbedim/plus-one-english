@@ -20,7 +20,7 @@ const perguntas = [
   {id:'Q19', texto:'Quando você precisa escrever ou digitar em inglês, como se sente?', tipo:'unica', opcoes:['Não consigo escrever frases.','Consigo escrever frases muito simples.','Consigo escrever pequenos textos.','Consigo escrever textos com relativa facilidade.','Consigo escrever textos com facilidade e clareza.']},
   {id:'Q20', texto:'Como você avalia seu vocabulário em inglês? (Ou seja, quantas palavras você conhece e consegue usar.)', tipo:'unica', opcoes:['Conheço muito poucas palavras.','Conheço palavras básicas.','Conheço bastante vocabulário, mas ainda esqueço muitas palavras.','Tenho um vocabulário amplo.','Consigo falar sobre praticamente qualquer assunto que conheço.']},
   {id:'Q21', texto:'O que você gostaria de conseguir fazer em inglês?', tipo:'multipla', opcoes:['Me apresentar e falar sobre mim.','Conversar no dia a dia.','Viajar sozinho(a).','Fazer amizades com estrangeiros.','Participar de reuniões.','Trabalhar em inglês.','Fazer apresentações.','Assistir filmes e séries sem legenda.','Entender músicas.','Jogar em inglês.','Ler livros e artigos.','Escrever profissionalmente.','Morar fora.','Fazer uma prova ou certificação.','Outro.'], outro:true},
-  {id:'Q22', texto:'Imagine que seu inglês esteja muito melhor daqui a 6 meses. O qhttps://script.google.com/macros/s/AKfycbzkSnJb-zF9ssyaBBWqm54co6CoxywjcgxT-2HVxXZ1jEWJBCWjLPrwsNWLG7a9zf1h/execue você gostaria de conseguir fazer que hoje ainda não consegue?', tipo:'aberta', placeholder:'Conte pra gente...'},
+  {id:'Q22', texto:'Imagine que seu inglês esteja muito melhor daqui a 6 meses. O qque você gostaria de conseguir fazer que hoje ainda não consegue?', tipo:'aberta', placeholder:'Conte pra gente...'},
   {id:'Q23', texto:'Para onde podemos enviar seu plano de estudo personalizado?', tipo:'email', placeholder:'seuemail@exemplo.com'},
   {id:'Q24', texto:'E qual número podemos usar para falar com você?', tipo:'tel', placeholder:'(41) 99999-9999'}
 ];
@@ -34,20 +34,35 @@ const PLUS_ONE_CONFIG = {
   APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzkSnJb-zF9ssyaBBWqm54co6CoxywjcgxT-2HVxXZ1jEWJBCWjLPrwsNWLG7a9zf1h/exec',
   PLATFORM: 'web'
 };
-let envioConcluido = false;
-function gerarSubmissionId(){
-  let id = localStorage.getItem('plusOneSubmissionId');
-  if(!id){ id = 'P-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,8).toUpperCase(); localStorage.setItem('plusOneSubmissionId', id); }
-  return id;
-}
-async function enviarRespostas(){
-  if(envioConcluido || !PLUS_ONE_CONFIG.APPS_SCRIPT_URL || PLUS_ONE_CONFIG.APPS_SCRIPT_URL.includes('COLE_AQUI')) return;
-     envioConcluido = true;
-  const payload = { submissionId: gerarSubmissionId(), platform: PLUS_ONE_CONFIG.PLATFORM, respostas: respostas };
-  try {
-    await fetch(PLUS_ONE_CONFIG.APPS_SCRIPT_URL, { method:'POST', mode: 'no-cors', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
-    console.log('Plus One: respostas enviadas.');
-  } catch(error) { envioConcluido=false; console.error('Plus One: não foi possível enviar as respostas.', error); }
+let envioConcluido=false;
+
+// V14: identificadores persistentes, confirmação real por consulta JSONP e janela de 12 horas.
+const PO_CLIENT_KEY='plusOneClientIdV14', PO_RECEIPT_KEY='plusOneReceiptV14', PO_PENDING_KEY='plusOnePendingV14';
+function poId(prefix){return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,11).toUpperCase();}
+function poClientId(){let id=localStorage.getItem(PO_CLIENT_KEY);if(!id){id=poId('C');localStorage.setItem(PO_CLIENT_KEY,id);}return id;}
+function poReceipt(){try{return JSON.parse(localStorage.getItem(PO_RECEIPT_KEY)||'null');}catch(e){return null;}}
+function poCanRedo(){const r=poReceipt();return !!(r&&Date.now()<new Date(r.firstSubmittedAt).getTime()+12*3600000);}
+function poResetAnswers(storageKey){localStorage.removeItem(storageKey);localStorage.removeItem(PO_PENDING_KEY);localStorage.removeItem('plusOneSubmissionId');envioConcluido=false;respostas={};}
+function poCheckStatus(submissionId){return new Promise((resolve,reject)=>{const callback='poCallback_'+Math.random().toString(36).slice(2);const script=document.createElement('script');const timeout=setTimeout(()=>cleanup(new Error('Tempo esgotado ao verificar o recebimento.')),12000);function cleanup(err,data){clearTimeout(timeout);delete window[callback];script.remove();if(err)reject(err);else resolve(data);}window[callback]=data=>cleanup(null,data);script.onerror=()=>cleanup(new Error('Não foi possível verificar o recebimento.'));script.src=PLUS_ONE_CONFIG.APPS_SCRIPT_URL+'?action=status&submissionId='+encodeURIComponent(submissionId)+'&callback='+callback;document.head.appendChild(script);});}
+async function poSendAndConfirm(){
+  const pending=JSON.parse(localStorage.getItem(PO_PENDING_KEY)||'null');
+  const submissionId=pending?.submissionId||poId('P');
+  const payload=pending?.payload||{submissionId,clientId:poClientId(),platform:PLUS_ONE_CONFIG.PLATFORM,respostas:{...respostas}};
+  localStorage.setItem(PO_PENDING_KEY,JSON.stringify({submissionId,payload}));
+  // Primeiro consulta se uma tentativa anterior já foi recebida; repetir o POST é idempotente.
+  let result=await poCheckStatus(submissionId).catch(()=>null);
+  if(!result?.ok){
+    await fetch(PLUS_ONE_CONFIG.APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    for(let attempt=0;attempt<5;attempt++){
+      await new Promise(r=>setTimeout(r,800+attempt*600));
+      result=await poCheckStatus(submissionId).catch(()=>null);
+      if(result?.ok||result?.error)break;
+    }
+  }
+  if(!result?.ok)throw new Error(result?.error||'Ainda não conseguimos confirmar o recebimento. Tente novamente.');
+  const receipt={studentId:result.studentId,firstSubmittedAt:result.firstSubmittedAt,submittedAt:result.submittedAt,version:result.version};
+  localStorage.setItem(PO_RECEIPT_KEY,JSON.stringify(receipt));localStorage.removeItem(PO_PENDING_KEY);
+  return receipt;
 }
 
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(respostas));}
@@ -70,13 +85,18 @@ function addOutroField(p,box){const wrap=document.createElement('div');wrap.clas
 function renderAnswer(){const p=perguntas[atual];answerArea.innerHTML='';const helper=document.createElement('p');helper.className='answer-helper';helper.textContent=p.tipo==='multipla'?'Escolha uma ou mais opções.':'Escolha uma opção para continuar.';answerArea.appendChild(helper);if(['numero','aberta','email','tel'].includes(p.tipo)){makeInput(p);return;}let selecionadas=Array.isArray(respostas[p.id])?[...respostas[p.id]]:[];let outroInput=null;let continuar=null;p.opcoes.forEach(op=>{const b=document.createElement('button');b.type='button';b.className='option';b.textContent=op;if((p.tipo==='unica'&&respostas[p.id]===op)||selecionadas.includes(op))b.classList.add('selected');b.onclick=()=>{if(p.tipo==='unica'){respostas[p.id]=op;if(p.outro&&op==='Outro'){outroInput=outroInput||addOutroField(p,answerArea);continuar.disabled=true;return;}persist();next();return;}const i=selecionadas.indexOf(op);if(i>=0){selecionadas.splice(i,1);b.classList.remove('selected')}else{selecionadas.push(op);b.classList.add('selected')}if(p.outro&&op==='Outro'){if(selecionadas.includes('Outro'))outroInput=outroInput||addOutroField(p,answerArea);else if(outroInput){outroInput.parentElement.remove();outroInput=null;}}if(continuar)continuar.disabled=!selecionadas.length||(p.outro&&selecionadas.includes('Outro')&&!outroInput.value.trim());};answerArea.appendChild(b);});if(p.tipo==='multipla'){continuar=document.createElement('button');continuar.type='button';continuar.className='continue';continuar.textContent='Responder →';continuar.disabled=!selecionadas.length;continuar.onclick=()=>{if(!selecionadas.length)return;if(p.outro&&selecionadas.includes('Outro')&&(!outroInput||!outroInput.value.trim()))return;let valor=[...selecionadas];if(outroInput&&outroInput.value.trim())valor=valor.map(v=>v==='Outro.'||v==='Outro'?`Outro: ${outroInput.value.trim()}`:v);respostas[p.id]=valor;persist();next();};answerArea.appendChild(continuar);if(outroInput)outroInput.addEventListener('input',()=>continuar.disabled=!selecionadas.length||(p.outro&&selecionadas.includes('Outro')&&!outroInput.value.trim()));}}
 function renderChat(){updateUI();renderHistory();const p=perguntas[atual];addBotMessage(qHistory,p.texto,listaVisivel().findIndex(x=>x.id===p.id));renderAnswer();qHistory.scrollTop=qHistory.scrollHeight;saveHint.textContent=hasProgress()?'Suas respostas ficam salvas enquanto você avança.':'Sua resposta fica salva enquanto você avança.';}
 function next(){const vis=listaVisivel();const idx=vis.findIndex(p=>p.id===perguntas[atual].id);if(idx<vis.length-1){atual=perguntas.findIndex(p=>p.id===vis[idx+1].id);renderChat();}else{
-  card.classList.add('hidden');
-  finish.classList.remove('hidden');
-  progressWrap.classList.add('hidden');
-  diagnosticRail.classList.add('hidden');
-  persist();
-  enviarRespostas();
+  persist(); poFinish();
 }}
 function back(){const vis=listaVisivel();const idx=vis.findIndex(p=>p.id===perguntas[atual].id);if(idx>0){atual=perguntas.findIndex(p=>p.id===vis[idx-1].id);renderChat();}}
-backBtn.onclick=back;bottomBack.onclick=back;homeTab.onclick=showHome;diagnosticTab.onclick=startDiagnostic;homeStartBtn.onclick=startDiagnostic;document.getElementById('restartBtn').onclick=showHome;buildMap();showHome();
+backBtn.onclick=back;bottomBack.onclick=back;homeTab.onclick=showHome;diagnosticTab.onclick=startDiagnostic;homeStartBtn.onclick=startDiagnostic;document.getElementById('restartBtn').onclick=()=>poRestart(STORAGE_KEY);document.getElementById('retryBtn').onclick=poFinish;buildMap();showHome();
 const toast=document.getElementById('toast');let toastTimer;document.querySelectorAll('[data-toast]').forEach(btn=>btn.addEventListener('click',()=>{toast.textContent=btn.dataset.toast||'Em breve.';toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2400);}));
+
+async function poFinish(){
+  card.classList.add('hidden');finish.classList.remove('hidden');progressWrap.classList.add('hidden');diagnosticRail.classList.add('hidden');
+  const heading=finish.querySelector('h2'),desc=finish.querySelector('.po-finish-desc'),retry=document.getElementById('retryBtn'),restart=document.getElementById('restartBtn');
+  heading.textContent='Enviando seu perfil...';desc.textContent='Aguarde enquanto confirmamos o recebimento.';retry.hidden=true;restart.hidden=true;
+  try{const receipt=await poSendAndConfirm();heading.textContent='Seu perfil chegou até nós!';desc.textContent='Obrigado por confiar na Plus One. Nossa equipe vai analisar suas respostas e, em breve, entrar em contato para compartilhar seu material e plano de estudos.';restart.hidden=!poCanRedo();}
+  catch(err){heading.textContent='Ainda não confirmamos seu envio';desc.textContent=err.message+' Suas respostas continuam salvas neste dispositivo.';retry.hidden=false;}
+}
+function poRestart(key){if(!poCanRedo())return;poResetAnswers(key);atual=0;buildMap();showHome();}
+const poSavedReceipt=poReceipt();if(poSavedReceipt){finish.classList.remove('hidden');home.classList.add('hidden');finish.querySelector('h2').textContent='Seu perfil chegou até nós!';finish.querySelector('.po-finish-desc').textContent='Obrigado por confiar na Plus One. Em breve, nossa equipe entrará em contato para compartilhar seu material e plano de estudos.';document.getElementById('restartBtn').hidden=!poCanRedo();document.getElementById('retryBtn').hidden=true;}
