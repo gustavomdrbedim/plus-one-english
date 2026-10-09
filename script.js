@@ -20,7 +20,7 @@ const perguntas = [
   {id:'Q19', texto:'Quando você precisa escrever ou digitar em inglês, como se sente?', tipo:'unica', opcoes:['Não consigo escrever frases.','Consigo escrever frases muito simples.','Consigo escrever pequenos textos.','Consigo escrever textos com relativa facilidade.','Consigo escrever textos com facilidade e clareza.']},
   {id:'Q20', texto:'Como você avalia seu vocabulário em inglês? (Ou seja, quantas palavras você conhece e consegue usar.)', tipo:'unica', opcoes:['Conheço muito poucas palavras.','Conheço palavras básicas.','Conheço bastante vocabulário, mas ainda esqueço muitas palavras.','Tenho um vocabulário amplo.','Consigo falar sobre praticamente qualquer assunto que conheço.']},
   {id:'Q21', texto:'O que você gostaria de conseguir fazer em inglês?', tipo:'multipla', opcoes:['Me apresentar e falar sobre mim.','Conversar no dia a dia.','Viajar sozinho(a).','Fazer amizades com estrangeiros.','Participar de reuniões.','Trabalhar em inglês.','Fazer apresentações.','Assistir filmes e séries sem legenda.','Entender músicas.','Jogar em inglês.','Ler livros e artigos.','Escrever profissionalmente.','Morar fora.','Fazer uma prova ou certificação.','Outro.'], outro:true},
-  {id:'Q22', texto:'Imagine que seu inglês esteja muito melhor daqui a 6 meses. O que você gostaria de conseguir fazer que hoje ainda não consegue?', tipo:'aberta', placeholder:'Conte pra gente...'},
+  {id:'Q22', texto:'Imagine que seu inglês esteja muito melhor daqui a 6 meses. O qhttps://script.google.com/macros/s/AKfycbzkSnJb-zF9ssyaBBWqm54co6CoxywjcgxT-2HVxXZ1jEWJBCWjLPrwsNWLG7a9zf1h/execue você gostaria de conseguir fazer que hoje ainda não consegue?', tipo:'aberta', placeholder:'Conte pra gente...'},
   {id:'Q23', texto:'Para onde podemos enviar seu plano de estudo personalizado?', tipo:'email', placeholder:'seuemail@exemplo.com'},
   {id:'Q24', texto:'E qual número podemos usar para falar com você?', tipo:'tel', placeholder:'(41) 99999-9999'}
 ];
@@ -31,7 +31,7 @@ const saved=localStorage.getItem(STORAGE_KEY);if(saved){try{respostas=JSON.parse
 const home=document.getElementById('home'),homeStartBtn=document.getElementById('homeStartBtn'),homeStartLabel=document.getElementById('homeStartLabel'),homeTab=document.getElementById('homeTab'),diagnosticTab=document.getElementById('diagnosticTab'),diagnosticRail=document.getElementById('diagnosticRail'),progressWrap=document.getElementById('progressWrap'),topTitle=document.getElementById('topTitle'),qHistory=document.getElementById('chatHistory'),answerArea=document.getElementById('answerArea'),section=document.getElementById('sectionLabel'),progressText=document.getElementById('progressText'),railProgress=document.getElementById('railProgress'),railLabel=document.getElementById('railLabel'),bar=document.getElementById('progressBar'),map=document.getElementById('questionMap'),backBtn=document.getElementById('backBtn'),bottomBack=document.getElementById('bottomBack'),card=document.getElementById('questionCard'),finish=document.getElementById('finish'),saveHint=document.getElementById('saveHint');
 
 const PLUS_ONE_CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxHl1ZW4pNegRj8z72-dB1LDBu1EQ29xlAIbCCsiH8McI9m-MfzPBVveNG4pUoFzDUK/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzkSnJb-zF9ssyaBBWqm54co6CoxywjcgxT-2HVxXZ1jEWJBCWjLPrwsNWLG7a9zf1h/exec',
   PLATFORM: 'web'
 };
 let envioConcluido = false;
