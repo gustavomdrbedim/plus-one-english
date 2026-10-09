@@ -1,123 +1,107 @@
-const perguntas = [
-  {id:'Q01', texto:'Primeiro, como posso te chamar?', tipo:'aberta', placeholder:'Digite seu nome'},
-  {id:'Q02', texto:'E quantos anos você tem?', tipo:'numero', placeholder:'Digite sua idade'},
-  {id:'Q03', texto:'E hoje, o que você faz?', tipo:'unica', opcoes:['Estudo','Trabalho','Estou procurando emprego','Outro'], outro:true},
-  {id:'Q04', texto:'Pensando na sua rotina de verdade, quanto tempo você consegue dedicar ao inglês por dia?', tipo:'unica', opcoes:['10–15 minutos','15–30 minutos','30–45 minutos','45–60 minutos','1–2 horas','Mais de 2 horas']},
-  {id:'Q05', texto:'E quantos dias por semana você consegue estudar inglês?', tipo:'unica', opcoes:['1 dia','2 dias','3 dias','4 dias','5 dias','6 dias','7 dias']},
-  {id:'Q06', texto:'Qual período do dia costuma funcionar melhor para você?', tipo:'unica', opcoes:['Manhã','Horário de almoço','Tarde','Noite','Não tenho preferência','Meus horários variam muito']},
-  {id:'Q07', texto:'Agora me conta uma coisa: por que você quer aprender inglês?', tipo:'multipla', opcoes:['Trabalho e carreira','Estudos','Viagens ou morar fora','Fazer amigos e conhecer pessoas','Filmes, séries, músicas e outros conteúdos','Jogos','Desenvolvimento pessoal']},
-  {id:'Q08', texto:'Você já estudou inglês alguma vez?', tipo:'unica', opcoes:['Nunca estudei inglês.','Estudei por pouco tempo.','Estudei por alguns anos.','Estudei por vários anos.','Ainda estudo inglês atualmente.']},
-  {id:'Q09', texto:'E onde você já estudou inglês?', tipo:'multipla', opcoes:['Nunca estudei.','Escola regular.','Curso de inglês.','Professor particular.','Aplicativos.','Internet / YouTube.','Estudando sozinho(a).','Morei ou estudei em outro país.','Outro.'], outro:true},
-  {id:'Q10', texto:'Como você avalia o que aprendeu até hoje?', tipo:'unica', opcoes:['Sei muito pouco e gostaria de começar praticamente do zero.','Sei algumas coisas, mas me sinto inseguro(a).','Sei várias coisas, mas sinto que meu conhecimento é desorganizado.','Tenho uma boa base, mas ainda tenho dificuldades.','Consigo usar inglês relativamente bem, mas quero evoluir.','Já tenho bastante domínio e quero aprimorar pontos específicos.']},
-  {id:'Q11', texto:'Quando você estudou inglês anteriormente, por que parou?', tipo:'multipla', condicional:'parou', opcoes:['Falta de tempo.','Falta de dinheiro.','Perdi a motivação.','Não estava vendo resultados.','Não gostei do método.','Terminei o curso.','Mudei de rotina.','Tive problemas pessoais.']},
-  {id:'Q12', texto:'Hoje, com que frequência você tem contato com o inglês?', tipo:'unica', opcoes:['Quase nunca.','Algumas vezes por mês.','Algumas vezes por semana.','Todos os dias.']},
-  {id:'Q13', texto:'Onde você normalmente encontra inglês no seu dia a dia?', tipo:'multipla', opcoes:['Música.','Filmes e séries.','YouTube.','Redes sociais.','Jogos.','Trabalho.','Estudos.','Livros e artigos.','Conversas com estrangeiros.','Viagens.','Praticamente não tenho contato.']},
-  {id:'Q14', texto:'Você já viajou para algum país onde precisou usar inglês?', tipo:'unica', opcoes:['Nunca viajei para outro país.','Já viajei, mas não precisei usar inglês.','Já usei inglês em situações muito simples.','Já precisei usar inglês em várias situações.','Já vivi uma experiência em que precisei usar inglês constantemente.']},
-  {id:'Q15', texto:'Você já teve uma conversa em inglês com outra pessoa?', tipo:'unica', opcoes:['Nunca.','Já tentei, mas tive muita dificuldade.','Consigo conversar sobre assuntos simples.','Consigo manter uma conversa relativamente bem.','Consigo conversar normalmente sobre vários assuntos.']},
-  {id:'Q16', texto:'Quando você lê algo em inglês, quanto consegue entender?', tipo:'unica', opcoes:['Não consigo entender.','Entendo muito pouco.','Entendo algumas coisas.','Entendo a maior parte.','Entendo praticamente tudo.']},
-  {id:'Q17', texto:'E quando alguém fala inglês, quanto você consegue entender?', tipo:'unica', opcoes:['Quase nada.','Entendo algumas palavras.','Entendo se a pessoa falar devagar.','Entendo conversas normalmente na maioria das situações.','Consigo entender diferentes pessoas e velocidades.']},
-  {id:'Q18', texto:'E quando você precisa falar em inglês?', tipo:'unica', opcoes:['Não consigo formar frases.','Consigo falar palavras e frases muito simples.','Consigo falar sobre assuntos básicos.','Consigo manter uma conversa.','Consigo me expressar com facilidade.']},
-  {id:'Q19', texto:'Quando você precisa escrever ou digitar em inglês, como se sente?', tipo:'unica', opcoes:['Não consigo escrever frases.','Consigo escrever frases muito simples.','Consigo escrever pequenos textos.','Consigo escrever textos com relativa facilidade.','Consigo escrever textos com facilidade e clareza.']},
-  {id:'Q20', texto:'Como você avalia seu vocabulário em inglês? (Ou seja, quantas palavras você conhece e consegue usar.)', tipo:'unica', opcoes:['Conheço muito poucas palavras.','Conheço palavras básicas.','Conheço bastante vocabulário, mas ainda esqueço muitas palavras.','Tenho um vocabulário amplo.','Consigo falar sobre praticamente qualquer assunto que conheço.']},
-  {id:'Q21', texto:'O que você gostaria de conseguir fazer em inglês?', tipo:'multipla', opcoes:['Me apresentar e falar sobre mim.','Conversar no dia a dia.','Viajar sozinho(a).','Fazer amizades com estrangeiros.','Participar de reuniões.','Trabalhar em inglês.','Fazer apresentações.','Assistir filmes e séries sem legenda.','Entender músicas.','Jogar em inglês.','Ler livros e artigos.','Escrever profissionalmente.','Morar fora.','Fazer uma prova ou certificação.','Outro.'], outro:true},
-  {id:'Q22', texto:'Imagine que seu inglês esteja muito melhor daqui a 6 meses. O que você gostaria de conseguir fazer que hoje ainda não consegue?', tipo:'aberta', placeholder:'Conte pra gente...'},
-  {id:'Q23', texto:'Para onde podemos enviar seu plano de estudo personalizado?', tipo:'email', placeholder:'seuemail@exemplo.com'},
-  {id:'Q24', texto:'E qual número podemos usar para falar com você?', tipo:'tel', placeholder:'(41) 99999-9999'}
-];
+:root{--base:#B4CAD6;--deep:#506A78;--mid:#718D9C;--soft:#DCE7ED;--pale:#EEF4F7;--paper:#F7F9FA;--ink:#18252C;--muted:#6B7A82;--line:#D5E0E5;--white:#fff}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#D5E1E7;color:var(--ink);font-family:"DM Sans",Arial,sans-serif}button,input,textarea{font:inherit}button{-webkit-tap-highlight-color:transparent}
+.app{width:100%;max-width:560px;height:100dvh;min-height:100dvh;margin:auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.app:before{content:"";position:absolute;width:290px;height:290px;border-radius:50%;background:rgba(180,202,214,.28);top:-175px;right:-105px;pointer-events:none}
+.topbar{height:72px;flex:0 0 72px;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line);background:rgba(247,249,250,.94);backdrop-filter:blur(14px);z-index:10}
+.brand{display:flex;align-items:center;gap:9px;font-size:9px;font-weight:800;letter-spacing:1.7px;color:var(--deep)}.brand-mark{width:39px;height:39px;display:block}.brand-mark img{width:39px;height:39px;display:block;object-fit:contain}.top-meta{display:flex;align-items:center;gap:8px}.top-meta span{font-size:8px;letter-spacing:1.4px;font-weight:800;color:var(--mid)}.top-meta strong{font-size:11px;background:var(--soft);color:var(--deep);padding:7px 9px;border-radius:999px}
+.intro{flex:1;padding:42px 24px 28px;display:flex;flex-direction:column;justify-content:center;overflow:auto}.intro-kicker{font-size:10px;letter-spacing:2.2px;font-weight:800;color:var(--deep);margin-bottom:13px}.intro h1{font:800 clamp(39px,10vw,57px)/1.08 Manrope,sans-serif;letter-spacing:-2.8px;margin:0}.intro h1 em{font-style:normal;color:var(--deep)}.intro p{max-width:430px;color:var(--muted);font-size:15px;line-height:1.65;margin:22px 0 28px}.primary{align-self:flex-start;border:0;border-radius:15px;background:var(--deep);color:#fff;padding:15px 18px;font-weight:800;cursor:pointer;box-shadow:0 12px 28px rgba(80,106,120,.2);transition:.18s}.primary:hover{transform:translateY(-1px)}.primary span{font-size:18px;margin-left:13px}.intro small{margin-top:28px;color:#9AA8AF;font-size:11px}
+.chat{flex:1 1 auto;min-height:0;overflow-y:auto;padding:22px 16px 18px;display:none;scrollbar-width:thin;scrollbar-color:var(--base) transparent}.message-wrap{margin:0 0 15px;animation:rise .28s ease}.message-wrap.bot{display:flex;gap:9px;align-items:flex-start}.message-wrap.user{display:flex;justify-content:flex-end}.bot-mark{width:27px;height:27px;flex:0 0 27px;border-radius:50%;background:var(--base);color:var(--deep);display:grid;place-items:center;font-size:8px;font-weight:900;margin-top:3px}.message{max-width:84%;padding:13px 15px;border-radius:17px;font-size:14px;line-height:1.5}.bot .message{background:#fff;border:1px solid var(--line);border-top-left-radius:5px}.user .message{background:var(--deep);color:#fff;border-bottom-right-radius:5px}
+.answer-area{flex:0 0 auto;max-height:48dvh;overflow:auto;padding:8px 16px max(18px,env(safe-area-inset-bottom));background:linear-gradient(to bottom,rgba(247,249,250,.1),rgba(247,249,250,.96) 20%,var(--paper) 40%);display:none;z-index:5;scrollbar-width:thin;scrollbar-color:var(--base) transparent}.answer-title{font-size:11px;color:var(--muted);margin:0 2px 7px}.option{position:relative;width:100%;margin-top:7px;padding:13px 43px 13px 14px;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--ink);text-align:left;font-size:13px;line-height:1.35;cursor:pointer;transition:.15s}.option:hover{border-color:var(--mid)}.option.selected{background:var(--soft);border-color:var(--mid);color:var(--deep)}.option.selected:after{content:"✓";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-weight:900}.continue{width:100%;margin-top:9px;padding:14px;border:0;border-radius:13px;background:var(--deep);color:#fff;font-weight:800;cursor:pointer}.continue:disabled{opacity:.38;cursor:default}.text-input,.number-input{width:100%;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--ink);outline:0;padding:14px 15px;font-size:15px}.text-input{min-height:105px;resize:none}.text-input:focus,.number-input:focus{border-color:var(--mid);box-shadow:0 0 0 3px rgba(180,202,214,.32)}
+.finish{flex:1;padding:44px 24px;display:flex;flex-direction:column;justify-content:center}.finish-mark{width:52px;height:52px;border-radius:50%;background:var(--soft);color:var(--deep);display:grid;place-items:center;font-size:24px;font-weight:800;margin-bottom:25px}.finish h2{font:800 36px/1.02 Manrope,sans-serif;letter-spacing:-1.8px;margin:0}.finish p{color:var(--muted);line-height:1.65;margin:20px 0 28px;max-width:440px}.hidden{display:none!important}@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@media(min-width:700px){body{padding:24px}.app{height:calc(100dvh - 48px);min-height:0;border-radius:28px;box-shadow:0 24px 70px rgba(17,38,45,.16)}.topbar{border-radius:28px 28px 0 0}}
 
-const secoes={Q01:'PROFILE',Q02:'PROFILE',Q03:'PROFILE',Q04:'ROUTINE',Q05:'ROUTINE',Q06:'ROUTINE',Q07:'MOTIVATION',Q08:'HISTORY',Q09:'HISTORY',Q10:'HISTORY',Q11:'HISTORY',Q12:'EXPERIENCE',Q13:'EXPERIENCE',Q14:'EXPERIENCE',Q15:'EXPERIENCE',Q16:'SKILLS',Q17:'SKILLS',Q18:'SKILLS',Q19:'SKILLS',Q20:'SKILLS',Q21:'GOALS',Q22:'GOALS',Q23:'CONTACT',Q24:'CONTACT'};
-let atual=0;
+.intro h1 .accent-word{letter-spacing:0;display:inline-block;margin-right:.06em}
 
-const PLUS_ONE_CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzkSnJb-zF9ssyaBBWqm54co6CoxywjcgxT-2HVxXZ1jEWJBCWjLPrwsNWLG7a9zf1h/exec',
-  PLATFORM: 'app'
-};
-const APP_STORAGE_KEY = 'plusOneEnglishProfileAppV1';
-let envioConcluido=false;
-let respostas={};
-const appSaved=localStorage.getItem(APP_STORAGE_KEY);if(appSaved){try{respostas=JSON.parse(appSaved)||{};}catch(e){respostas={};}}
-function persist(){localStorage.setItem(APP_STORAGE_KEY,JSON.stringify(respostas));}
-
-// V14: identificadores persistentes, confirmação real por consulta JSONP e janela de 12 horas.
-const PO_CLIENT_KEY='plusOneClientIdV14', PO_RECEIPT_KEY='plusOneReceiptV14', PO_PENDING_KEY='plusOnePendingV14';
-function poId(prefix){return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,11).toUpperCase();}
-function poClientId(){let id=localStorage.getItem(PO_CLIENT_KEY);if(!id){id=poId('C');localStorage.setItem(PO_CLIENT_KEY,id);}return id;}
-function poReceipt(){try{return JSON.parse(localStorage.getItem(PO_RECEIPT_KEY)||'null');}catch(e){return null;}}
-function poCanRedo(){const r=poReceipt();return !!(r&&Date.now()<new Date(r.firstSubmittedAt).getTime()+12*3600000);}
-function poResetAnswers(storageKey){localStorage.removeItem(storageKey);localStorage.removeItem(PO_PENDING_KEY);localStorage.removeItem('plusOneSubmissionId');envioConcluido=false;respostas={};}
-function poCheckStatus(submissionId){return new Promise((resolve,reject)=>{const callback='poCallback_'+Math.random().toString(36).slice(2);const script=document.createElement('script');const timeout=setTimeout(()=>cleanup(new Error('Tempo esgotado ao verificar o recebimento.')),12000);function cleanup(err,data){clearTimeout(timeout);delete window[callback];script.remove();if(err)reject(err);else resolve(data);}window[callback]=data=>cleanup(null,data);script.onerror=()=>cleanup(new Error('Não foi possível verificar o recebimento.'));script.src=PLUS_ONE_CONFIG.APPS_SCRIPT_URL+'?action=status&submissionId='+encodeURIComponent(submissionId)+'&callback='+callback;document.head.appendChild(script);});}
-async function poSendAndConfirm(){
-  const pending=JSON.parse(localStorage.getItem(PO_PENDING_KEY)||'null');
-  const submissionId=pending?.submissionId||poId('P');
-  const payload=pending?.payload||{submissionId,clientId:poClientId(),platform:PLUS_ONE_CONFIG.PLATFORM,respostas:{...respostas}};
-  localStorage.setItem(PO_PENDING_KEY,JSON.stringify({submissionId,payload}));
-  // Primeiro consulta se uma tentativa anterior já foi recebida; repetir o POST é idempotente.
-  let result=await poCheckStatus(submissionId).catch(()=>null);
-  if(!result?.ok){
-    await fetch(PLUS_ONE_CONFIG.APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-    for(let attempt=0;attempt<5;attempt++){
-      await new Promise(r=>setTimeout(r,800+attempt*600));
-      result=await poCheckStatus(submissionId).catch(()=>null);
-      if(result?.ok||result?.error)break;
-    }
+/* Automatic device theme: the app follows the phone/computer light/dark preference. */
+@media (prefers-color-scheme: dark){
+  :root{
+    --base:#9BB9C7;
+    --deep:#557483;
+    --mid:#89A8B7;
+    --soft:#263A44;
+    --pale:#1D2B32;
+    --paper:#10191E;
+    --ink:#ECF3F6;
+    --muted:#A7B7BE;
+    --line:#2B3A42;
+    --white:#F7FAFB;
   }
-  if(!result?.ok)throw new Error(result?.error||'Ainda não conseguimos confirmar o recebimento. Tente novamente.');
-  const receipt={studentId:result.studentId,firstSubmittedAt:result.firstSubmittedAt,submittedAt:result.submittedAt,version:result.version};
-  localStorage.setItem(PO_RECEIPT_KEY,JSON.stringify(receipt));localStorage.removeItem(PO_PENDING_KEY);
-  return receipt;
+  html,body{background:#0A1115;color:var(--ink);color-scheme:dark}
+  .app{background:var(--paper);box-shadow:0 24px 70px rgba(0,0,0,.35)}
+  .app:before{background:rgba(155,185,199,.09)}
+  .topbar{background:rgba(16,25,30,.92);border-color:var(--line)}
+  .top-meta strong{background:var(--soft);color:var(--base)}
+  .intro h1 em{color:var(--base)}
+  .intro p,.finish p{color:var(--muted)}
+  .primary,.continue{background:var(--base);color:#142127;box-shadow:0 12px 28px rgba(0,0,0,.24)}
+  .chat{scrollbar-color:var(--mid) transparent}
+  .bot .message{background:#18252B;border-color:var(--line);color:var(--ink)}
+  .user .message{background:var(--deep);color:#fff}
+  .bot-mark,.finish-mark{background:var(--soft);color:var(--base)}
+  .answer-area{background:linear-gradient(to bottom,rgba(16,25,30,.05),rgba(16,25,30,.96) 20%,var(--paper) 40%)}
+  .option,.text-input,.number-input{background:#172329;border-color:var(--line);color:var(--ink)}
+  .option:hover{border-color:var(--mid);background:var(--pale)}
+  .option.selected{background:var(--soft);border-color:var(--mid);color:var(--base)}
+  .text-input:focus,.number-input:focus{box-shadow:0 0 0 3px rgba(155,185,199,.14)}
 }
 
-const intro=document.getElementById('intro'),chat=document.getElementById('chat'),area=document.getElementById('answerArea'),finish=document.getElementById('finish'),progress=document.getElementById('progress'),sectionLabel=document.getElementById('sectionLabel');
-
-function deveMostrar(p){
-  if(p.condicional==='parou'){
-    const h=respostas.Q08;
-    return ['Estudei por pouco tempo.','Estudei por alguns anos.','Estudei por vários anos.'].includes(h);
-  }
-  return true;
-}
-function proxima(){ let i=atual+1; while(i<perguntas.length && !deveMostrar(perguntas[i])) i++; return i; }
-function anterior(){ let i=atual-1; while(i>=0 && !deveMostrar(perguntas[i])) i--; return i; }
-function totalVisivel(){ return perguntas.filter(deveMostrar).length; }
-function posicaoAtual(){ return perguntas.slice(0,atual+1).filter(deveMostrar).length; }
-function atualizar(){ const total=totalVisivel(); progress.textContent=atual<perguntas.length?`${String(posicaoAtual()).padStart(2,'0')} / ${total}`:'DONE'; sectionLabel.textContent=atual<perguntas.length?secoes[perguntas[atual].id]:'FINISHED'; }
-function msg(text,tipo){const w=document.createElement('div');w.className=`message-wrap ${tipo}`;if(tipo==='bot'){const m=document.createElement('div');m.className='bot-mark';m.textContent='+1';w.appendChild(m)}const b=document.createElement('div');b.className='message';b.textContent=text;w.appendChild(b);chat.appendChild(w);setTimeout(()=>chat.scrollTo({top:chat.scrollHeight,behavior:'smooth'}),30)}
-async function finalizar(){
-  area.innerHTML='';area.style.display='none';chat.classList.add('hidden');finish.classList.remove('hidden');atual=perguntas.length;atualizar();persist();
-  const heading=finish.querySelector('h2'),desc=finish.querySelector('.po-finish-desc'),retry=document.getElementById('retryBtn'),restart=document.getElementById('restartBtn');
-  heading.textContent='Enviando seu perfil...';desc.textContent='Aguarde enquanto confirmamos o recebimento.';retry.hidden=true;restart.hidden=true;
-  try{await poSendAndConfirm();heading.textContent='Seu perfil chegou até nós!';desc.textContent='Obrigado por confiar na Plus One. Nossa equipe vai analisar suas respostas e, em breve, entrar em contato para compartilhar seu material e plano de estudos.';restart.hidden=!poCanRedo();}
-  catch(err){heading.textContent='Ainda não confirmamos seu envio';desc.textContent=err.message+' Suas respostas continuam salvas neste dispositivo.';retry.hidden=false;}
+/* V11 — logo integration and a lighter, less-black dark mode */
+.brand-mark{overflow:hidden;border-radius:11px}
+.intro h1{line-height:1.17}.intro h1 .accent-word{letter-spacing:0;margin-right:.08em}
+@media (prefers-color-scheme: dark){
+  :root{--base:#AFC8D4;--deep:#5F8190;--mid:#8EADBA;--soft:#29404B;--pale:#20333C;--paper:#172831;--ink:#EDF4F7;--muted:#AFC0C7;--line:#354B55;--white:#F6FAFB}
+  html,body{background:#102029}
+  .app{background:var(--paper);box-shadow:0 24px 70px rgba(0,0,0,.25)}
+  .app:before{background:rgba(175,200,212,.08)}
+  .topbar{background:rgba(23,40,49,.94);border-color:var(--line)}
+  .top-meta span{color:#8EADBA}.top-meta strong{background:#29404B;color:#B4CAD6}
+  .intro h1 em{color:#C5D9E1}.intro p{color:#AFC0C7}.intro small{color:#91A6AE}
+  .primary,.continue{background:var(--base);color:#15262D;box-shadow:0 12px 28px rgba(0,0,0,.18)}
+  .bot .message{background:#203640;border-color:#38515B;color:var(--ink)}
+  .user .message{background:#5F8190;color:#fff}.bot-mark,.finish-mark{background:#29404B;color:#B4CAD6}
+  .answer-area{background:linear-gradient(to bottom,rgba(23,40,49,.05),rgba(23,40,49,.96) 20%,var(--paper) 40%)}
+  .option,.text-input,.number-input{background:#203640;border-color:#3A535E;color:var(--ink)}.option:hover{border-color:var(--mid);background:#29404B}.option.selected{background:#29404B;border-color:var(--base);color:#DCEAF0}
+  .finish{background:linear-gradient(145deg,#294653 0%,#385C6A 100%)}.finish p{color:#D2E0E5}
 }
 
-function responder(text){msg(text,'user'); const n=proxima(); if(n>=perguntas.length){setTimeout(finalizar,350);return;} atual=n; setTimeout(mostrar,280);}
-function outroCampo(p, selecionadas, continuar){ const wrap=document.createElement('div');wrap.className='other-wrap'; const input=document.createElement('input');input.className='text-input';input.placeholder='Conte um pouco mais...'; wrap.appendChild(input); area.appendChild(wrap); return input; }
-function mostrar(){
-  const p=perguntas[atual]; area.innerHTML=''; atualizar(); msg(p.texto,'bot');
-  if(p.tipo==='numero'||p.tipo==='aberta'||p.tipo==='email'||p.tipo==='tel'){
-    const tag=p.tipo==='aberta'?'textarea':'input'; const input=document.createElement(tag); input.className=p.tipo==='aberta'?'text-input':'number-input';
-    if(p.tipo==='numero'){input.type='number';input.min='1';input.max='120';} else if(p.tipo==='email') input.type='email'; else if(p.tipo==='tel') input.type='tel';
-    input.placeholder=p.placeholder||'Escreva sua resposta...'; if(tag==='textarea') input.rows=4;
-    const btn=document.createElement('button');btn.className='continue po-send';btn.textContent='➤';btn.setAttribute('aria-label','Enviar resposta');
-    btn.onclick=()=>{const v=input.value.trim();if(!v)return;respostas[p.id]=v;persist();responder(v)}; area.append(btn,input); input.focus(); return;
-  }
-  const selecionadas=Array.isArray(respostas[p.id])?[...respostas[p.id]]:[]; let outroInput=null; let continuar=null;
-  if(p.tipo==='multipla'){const t=document.createElement('div');t.className='answer-title';t.textContent='Você pode escolher mais de uma opção';area.appendChild(t)}
-  p.opcoes.forEach(op=>{const b=document.createElement('button');b.className='option';b.textContent=op; if((p.tipo==='unica'&&respostas[p.id]===op)||selecionadas.includes(op))b.classList.add('selected'); b.onclick=()=>{
-    if(p.tipo==='unica'){
-      respostas[p.id]=op;persist();
-      if(p.outro && op==='Outro'){ if(!outroInput) outroInput=outroCampo(p,selecionadas,continuar); continuar.disabled=true; return; }
-      responder(op); return;
-    }
-    const i=selecionadas.indexOf(op); if(i>=0){selecionadas.splice(i,1);b.classList.remove('selected')} else {selecionadas.push(op);b.classList.add('selected')}
-    if(p.outro && op==='Outro'){ if(selecionadas.includes('Outro')) outroInput=outroInput||outroCampo(p,selecionadas,continuar); else if(outroInput){outroInput.parentElement.remove();outroInput=null;} }
-    continuar.disabled=!selecionadas.length || (p.outro&&selecionadas.includes('Outro')&&!outroInput.value.trim());
-  }; area.appendChild(b)});
-  if(p.tipo==='multipla'){continuar=document.createElement('button');continuar.className='continue po-send';continuar.textContent='➤';continuar.setAttribute('aria-label','Enviar respostas selecionadas');continuar.disabled=!selecionadas.length;continuar.onclick=()=>{if(p.outro&&selecionadas.includes('Outro')&&(!outroInput||!outroInput.value.trim()))return;let valor=[...selecionadas];if(outroInput&&outroInput.value.trim())valor=valor.map(v=>v==='Outro'?`Outro: ${outroInput.value.trim()}`:v);respostas[p.id]=valor;persist();responder(valor.join(' • '))};area.insertBefore(continuar,area.firstChild);if(outroInput)outroInput.addEventListener('input',()=>continuar.disabled=!selecionadas.length||(p.outro&&selecionadas.includes('Outro')&&!outroInput.value.trim()));}
-}
+/* V14: enviar sempre acima das alternativas, sem rolar até o final. */
+.answer-area{display:flex;flex-direction:column;overscroll-behavior:contain}
+.answer-area .po-send{order:-1;position:sticky;top:0;z-index:6;align-self:flex-end;width:46px;height:46px;min-height:46px;border-radius:50%;padding:0;margin:0 0 7px;box-shadow:0 5px 18px rgba(0,0,0,.14);font-size:19px}
+.finish button[hidden]{display:none!important}
 
-document.getElementById('startBtn').onclick=()=>{intro.classList.add('hidden');chat.style.display='block';area.style.display='block';msg('Olá, futuro aluno da Plus One! 👋','bot');setTimeout(()=>msg('Ficamos muito felizes que você decidiu dar esse próximo passo no inglês. Quero conhecer um pouco mais sobre você para preparar algo que realmente combine com a sua rotina.','bot'),280);setTimeout(mostrar,650)};
-document.getElementById('restartBtn').onclick=()=>{if(!poCanRedo())return;poResetAnswers(APP_STORAGE_KEY);location.reload();};
-document.getElementById('retryBtn').onclick=finalizar;
-if(poReceipt()){intro.classList.add('hidden');finish.classList.remove('hidden');finish.querySelector('h2').textContent='Seu perfil chegou até nós!';finish.querySelector('.po-finish-desc').textContent='Obrigado por confiar na Plus One. Em breve, nossa equipe entrará em contato para compartilhar seu material e plano de estudos.';document.getElementById('restartBtn').hidden=!poCanRedo();document.getElementById('retryBtn').hidden=true;}
+/* V15 — campo de resposta com envio ao lado, opções roláveis e navegação acessível */
+.intro h1{font-size:clamp(31px,8.2vw,46px);line-height:1.17;letter-spacing:-1.7px}
+.progress-button{font-size:11px;background:var(--soft);color:var(--deep);padding:7px 10px;border:0;border-radius:999px;font-weight:800;cursor:pointer}
+.progress-button:disabled{opacity:.7;cursor:default}
+.answer-area{max-height:min(52dvh,440px);padding-top:6px;gap:0}
+.po-composer{position:sticky;top:0;z-index:12;order:-1;display:flex;align-items:flex-end;gap:9px;padding:8px 0 10px;background:var(--paper)}
+.po-composer .text-input,.po-composer .number-input{flex:1;min-width:0;width:auto;max-width:none;min-height:47px;margin:0}
+.po-composer .text-input{height:78px;min-height:78px}
+.po-composer .po-send{position:static!important;order:0!important;flex:0 0 46px;align-self:flex-end;margin:0!important}
+.po-composer-options{justify-content:flex-end}
+.question-overlay{position:absolute;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.question-backdrop{position:absolute;inset:0;background:rgba(11,26,34,.62);border:0;backdrop-filter:blur(5px);cursor:pointer}
+.question-panel{position:relative;width:100%;max-height:82dvh;display:flex;flex-direction:column;background:var(--paper);border-radius:24px 24px 0 0;padding:22px 18px max(24px,env(safe-area-inset-bottom));box-shadow:0 -16px 50px rgba(0,0,0,.16)}
+.question-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.question-panel-head h2{font:800 24px Manrope,sans-serif;margin:0}
+.question-panel>p{font-size:12px;line-height:1.5;color:var(--muted);margin:12px 0 18px}
+.drawer-close{border:1px solid var(--line);background:var(--soft);color:var(--ink);width:38px;height:38px;border-radius:12px;cursor:pointer}
+.answered-questions{overflow:auto;display:flex;flex-direction:column;gap:9px;overscroll-behavior:contain}
+.answered-item{display:flex;text-align:left;gap:12px;align-items:flex-start;background:var(--white);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:13px;cursor:pointer}
+.answered-item>strong{background:var(--soft);color:var(--deep);border-radius:9px;padding:7px;font-size:11px}
+.answered-item>span{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:12px;font-weight:700}
+.answered-item small{font-size:11px;font-weight:400;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+@media (prefers-color-scheme:dark){.po-composer{background:var(--paper)}.progress-button{color:var(--base)}.answered-item{background:#203640}.answered-item>strong{color:var(--base)}}
 
+/* V16 — links de apoio */
+.intro-links{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:24px}
+.intro-links a{color:var(--deep);font-size:12px;font-weight:800;text-decoration:none;border-bottom:1px solid var(--mid);padding-bottom:3px}
+
+/* V17 - atalhos e indicador de digitação */
+.intro-links .intro-link{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);padding:10px 12px;border-radius:12px;text-decoration:none;background:var(--soft)}
+.intro-link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.message-wrap.typing .message{display:flex;align-items:center;gap:5px;min-width:66px;min-height:36px}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.55;animation:poBounce 1.1s ease-in-out infinite}
+.typing-dot:nth-child(2){animation-delay:.16s}.typing-dot:nth-child(3){animation-delay:.32s}
+@keyframes poBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+@media(prefers-reduced-motion:reduce){.typing-dot{animation:none}}
