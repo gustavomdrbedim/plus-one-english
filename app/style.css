@@ -63,3 +63,8 @@
   .option,.text-input,.number-input{background:#203640;border-color:#3A535E;color:var(--ink)}.option:hover{border-color:var(--mid);background:#29404B}.option.selected{background:#29404B;border-color:var(--base);color:#DCEAF0}
   .finish{background:linear-gradient(145deg,#294653 0%,#385C6A 100%)}.finish p{color:#D2E0E5}
 }
+
+/* V14: enviar sempre acima das alternativas, sem rolar até o final. */
+.answer-area{display:flex;flex-direction:column;overscroll-behavior:contain}
+.answer-area .po-send{order:-1;position:sticky;top:0;z-index:6;align-self:flex-end;width:46px;height:46px;min-height:46px;border-radius:50%;padding:0;margin:0 0 7px;box-shadow:0 5px 18px rgba(0,0,0,.14);font-size:19px}
+.finish button[hidden]{display:none!important}
