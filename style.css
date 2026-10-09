@@ -110,3 +110,6 @@
 }
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);opacity:0;pointer-events:none;background:var(--deep);color:#fff;padding:11px 15px;border-radius:12px;font-size:10px;font-weight:700;box-shadow:0 12px 30px rgba(0,0,0,.18);transition:.2s;z-index:50}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:650px){.utility-nav{grid-template-columns:1fr;display:grid}.utility-item{padding:8px}.utility-copy small{display:none}.toast{left:14px;right:14px;transform:translateY(14px);text-align:center}.toast.show{transform:translateY(0)}}
+
+/* V14: ocultar botões de ação indisponíveis */
+.finish button[hidden]{display:none!important}
