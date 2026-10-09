@@ -43,7 +43,7 @@ function poClientId(){let id=localStorage.getItem(PO_CLIENT_KEY);if(!id){id=poId
 function poReceipt(){try{return JSON.parse(localStorage.getItem(PO_RECEIPT_KEY)||'null');}catch(e){return null;}}
 function poCanRedo(){const r=poReceipt();return !!(r&&Date.now()<new Date(r.firstSubmittedAt).getTime()+12*3600000);}
 function poResetAnswers(storageKey){localStorage.removeItem(storageKey);localStorage.removeItem(PO_PENDING_KEY);localStorage.removeItem('plusOneSubmissionId');envioConcluido=false;respostas={};}
-function poCheckStatus(submissionId){return new Promise((resolve,reject)=>{const callback='poCallback_'+Math.random().toString(36).slice(2);const script=document.createElement('script');const timeout=setTimeout(()=>cleanup(new Error('Tempo esgotado ao verificar o recebimento.')),12000);function cleanup(err,data){clearTimeout(timeout);delete window[callback];script.remove();if(err)reject(err);else resolve(data);}window[callback]=data=>cleanup(null,data);script.onerror=()=>cleanup(new Error('Não foi possível verificar o recebimento.'));script.src=PLUS_ONE_CONFIG.APPS_SCRIPT_URL+'?action=status&submissionId='+encodeURIComponent(submissionId)+'&callback='+callback;document.head.appendChild(script);});}
+function poCheckStatus(submissionId){return new Promise((resolve,reject)=>{const callback='poCallback_'+Math.random().toString(36).slice(2);const script=document.createElement('script');const timeout=setTimeout(()=>cleanup(new Error('Tempo esgotado ao verificar o recebimento.')),5000);function cleanup(err,data){clearTimeout(timeout);delete window[callback];script.remove();if(err)reject(err);else resolve(data);}window[callback]=data=>cleanup(null,data);script.onerror=()=>cleanup(new Error('Não foi possível verificar o recebimento.'));script.src=PLUS_ONE_CONFIG.APPS_SCRIPT_URL+'?action=status&submissionId='+encodeURIComponent(submissionId)+'&callback='+callback;document.head.appendChild(script);});}
 async function poSendAndConfirm(){
   const pending=JSON.parse(localStorage.getItem(PO_PENDING_KEY)||'null');
   const submissionId=pending?.submissionId||poId('P');
@@ -54,7 +54,7 @@ async function poSendAndConfirm(){
   if(!result?.ok){
     await fetch(PLUS_ONE_CONFIG.APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     for(let attempt=0;attempt<5;attempt++){
-      await new Promise(r=>setTimeout(r,800+attempt*600));
+      await new Promise(r=>setTimeout(r,[250,400,650,1000,1500][attempt]));
       result=await poCheckStatus(submissionId).catch(()=>null);
       if(result?.ok||result?.error)break;
     }
@@ -72,7 +72,7 @@ function listaVisivel(){return perguntas.filter(deveMostrar);}
 function total(){return listaVisivel().length;}
 function atualIndex(){return listaVisivel().findIndex(p=>p.id===perguntas[atual].id);}
 function formatNum(n){return String(n+1).padStart(2,'0');}
-function showHome(){home.classList.remove('hidden');card.classList.add('hidden');finish.classList.add('hidden');diagnosticRail.classList.add('hidden');progressWrap.classList.add('hidden');homeTab.classList.add('active');diagnosticTab.classList.remove('active');section.textContent='INTRODUÇÃO';topTitle.textContent='Seu English Profile';railLabel.textContent='ENGLISH PROFILE';railProgress.textContent=hasProgress()?'Perfil em andamento':`Até ${total()} perguntas`;homeStartLabel.textContent=hasProgress()?'Continuar meu perfil':'Começar meu perfil';}
+function showHome(){home.classList.remove('hidden');card.classList.add('hidden');finish.classList.add('hidden');diagnosticRail.classList.add('hidden');progressWrap.classList.add('hidden');homeTab.classList.add('active');diagnosticTab.classList.remove('active');section.textContent='INTRODUÇÃO';topTitle.textContent='Welcome student!';railLabel.textContent='ENGLISH PROFILE';railProgress.textContent=hasProgress()?'Perfil em andamento':`Até ${total()} perguntas`;homeStartLabel.textContent=hasProgress()?'Continuar meu perfil':'Começar meu perfil';}
 function startDiagnostic(){iniciado=true;home.classList.add('hidden');finish.classList.add('hidden');card.classList.remove('hidden');diagnosticRail.classList.remove('hidden');progressWrap.classList.remove('hidden');homeTab.classList.remove('active');diagnosticTab.classList.add('active');topTitle.textContent='English Profile';if(atual>=perguntas.length)atual=0;renderChat();}
 function buildMap(){map.innerHTML='';perguntas.forEach((p,i)=>{if(!deveMostrar(p))return;const b=document.createElement('button');b.type='button';b.className='q-dot';b.textContent=formatNum([...listaVisivel()].findIndex(x=>x.id===p.id));b.title=`Ir para a pergunta ${b.textContent}`;b.onclick=()=>{if(i<=atual||respostas[p.id]!==undefined){atual=i;renderChat();}};map.appendChild(b);});}
 function updateUI(){const vis=listaVisivel();const idx=vis.findIndex(p=>p.id===perguntas[atual].id);const pct=((idx+1)/vis.length)*100;progressText.textContent=`${formatNum(idx)} / ${vis.length}`;railProgress.textContent=`${formatNum(idx)} / ${vis.length}`;section.textContent=secoes[perguntas[atual].id];bar.style.width=`${pct}%`;bottomBack.disabled=idx===0;map.querySelectorAll('.q-dot').forEach((b,j)=>{const p=vis[j];b.classList.toggle('current',p.id===perguntas[atual].id);b.classList.toggle('answered',respostas[p.id]!==undefined);});}
