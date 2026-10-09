@@ -29,7 +29,7 @@ const secoes={Q01:'PROFILE',Q02:'PROFILE',Q03:'PROFILE',Q04:'ROUTINE',Q05:'ROUTI
 let atual=0;
 
 const PLUS_ONE_CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxHl1ZW4pNegRj8z72-dB1LDBu1EQ29xlAIbCCsiH8McI9m-MfzPBVveNG4pUoFzDUK/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzkSnJb-zF9ssyaBBWqm54co6CoxywjcgxT-2HVxXZ1jEWJBCWjLPrwsNWLG7a9zf1h/exec',
   PLATFORM: 'app'
 };
 const APP_STORAGE_KEY = 'plusOneEnglishProfileAppV1';
